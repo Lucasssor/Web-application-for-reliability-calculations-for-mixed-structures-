@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rozkład Wykładniczy</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="container-fluid">
+        <header>
+            <img src="img/agh.jpg" width="25%">
+            <h1><b>Rozkład Wykładniczy</b></h1>
+        </header>
+
+        <nav class="navigation-bar">
+            <a href="index.html">Strona główna</a>
+            <a href="szer_row.html">Struktura Szeregowo-Równoległa</a>
+            <a href="row_szer.html">Struktura Równoległo-Szeregowa</a>
+            <a href="weibull.html">Rozkład Weibulla</a>
+            <a href="wykladniczy.html">Rozkład Wykładniczy</a>
+        </nav>
+
+        <div class="text-center mb-4">
+            <p>Rozkład wykładniczy jest ciągłym rozkładem prawdopodobieństwa opisującym czas oczekiwania na zajście zdarzenia w procesie Poissona. <br>Jest on często wykorzystywany w teorii niezawodności do modelowania czasu bezawaryjnej pracy urządzeń. <br>Charakteryzuje się stałą intensywnością uszkodzeń λ (lambda) oraz parametrem MTTF (Mean Time To Failure - średni czas do uszkodzenia).<br>Znając czas oraz parametr λ lub MTTF można obliczyć następujące charakterystyki:</p>
+            <img src="img/wykladniczy_wzor.jpg" width="20%"><br><br>
+            <p style="font-size:12px;">gdzie: <br>R(t) - nieuszkadzalność systemu,<br>F(t) - uszkadzalność systemu,<br>f(t) - gęstość prawdopodobieństwa,<br>λ - intensywność uszkodzeń,<br>MTTF - średni czas do uszkodzenia systemu</p>
+        <hr>
+            <p>W celu obliczenia wybranych charakterystyk: λ lub MTTF, f(t), F(t), R(t) należy wprowadzić dane wejściowe. Dane muszą być nieujemne.</p>
+        </div>       
+
+        <div class="form-container">
+            <div class="switch-container">
+                <div class="label-container">
+                    <span class="parameter-label active" id="lambdaLabel">Znam parametr λ</span>
+                </div>
+                <label class="custom-switch">
+                    <input type="checkbox" id="parameterSwitch" onchange="toggleForms()">
+                    <span class="slider"></span>
+                </label>
+                <div class="label-container right">
+                    <span class="parameter-label" id="mttfLabel">Znam parametr MTTF</span>
+                </div>
+            </div>
+
+            <div id="lambdaForm" class="mb-4">
+                <div class="mb-3">
+                    <label for="time1" class="form-label">Czas [t], (t.u.):</label>
+                    <input type="number" class="form-control" id="time1" step="0.0001" min="0" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lambda" class="form-label">Parametr [λ], (1/t.u.):</label>
+                    <input type="number" class="form-control" id="lambda" step="0.0001" min="0" max="10000"required>
+                </div>
+                <button type="button" class="btn btn-primary w-100" onclick="calculateResult()">Zatwierdź</button>
+            </div>
+
+            <div id="mttfForm" class="mb-4" style="display: none;">
+                <div class="mb-3">
+                    <label for="time2" class="form-label">Czas [t], (t.u.):</label>
+                    <input type="number" class="form-control" id="time2" step="0.0001" min="0" required>
+                </div>
+                <div class="mb-3">
+                    <label for="mttf" class="form-label">Parametr MTTF, :</label>
+                    <input type="number" class="form-control" id="mttf" step="0.0001" min="0" max="10000"required>
+                </div>
+                <button type="button" class="btn btn-primary w-100" onclick="calculateResult()">Zatwierdź</button>
+            </div>
+
+            <div id="lambdaResults" class="result-container">               
+                <strong>Wyniki dla znanej λ:</strong><br>
+                MTTF: <span id="mttf1">-</span><br>
+                f(t): <span id="ft1">-</span><br>
+                F(t): <span id="Ft1">-</span><br>
+                R(t): <span id="Rt1">-</span>
+            </div>
+            <div id="mttfResults" class="result-container" style="display: none;">               
+                <strong>Wyniki dla znanego MTTF:</strong><br>
+                λ: <span id="lambda2">-</span><br>
+                f(t): <span id="ft2">-</span><br>
+                F(t): <span id="Ft2">-</span><br>
+                R(t): <span id="Rt2">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleForms() {
+            const lambdaForm = document.getElementById('lambdaForm');
+            const lambdaResults = document.getElementById('lambdaResults');
+            const mttfForm = document.getElementById('mttfForm');
+            const mttfResults = document.getElementById('mttfResults');
+            const switchElement = document.getElementById('parameterSwitch');
+            const lambdaLabel = document.getElementById('lambdaLabel');
+            const mttfLabel = document.getElementById('mttfLabel');
+            
+            if (switchElement.checked) {
+                lambdaForm.style.display = 'none';
+                lambdaResults.style.display = 'none';
+                mttfForm.style.display = 'block';
+                mttfResults.style.display = 'block';
+                lambdaLabel.classList.remove('active');
+                mttfLabel.classList.add('active');
+            } else {
+                lambdaForm.style.display = 'block';
+                lambdaResults.style.display = 'block';
+                mttfForm.style.display = 'none';
+                mttfResults.style.display = 'none';
+                lambdaLabel.classList.add('active');
+                mttfLabel.classList.remove('active');
+            }
+        }
+
+        function calculateResult() {
+            const switchElement = document.getElementById('parameterSwitch');
+            const isLambdaForm = !switchElement.checked;
+
+            let time = isLambdaForm ? document.getElementById('time1').value : document.getElementById('time2').value;
+            let parameter = isLambdaForm ? document.getElementById('lambda').value : document.getElementById('mttf').value;
+
+            if (time === '' || parameter === '') {
+                alert('Proszę wypełnić wszystkie pola!');
+                return;
+            }
+            if (time < 0 || parameter < 0) {
+                alert('Liczby muszą być nieujemne!');
+                return;
+            }
+            const lambda = isLambdaForm ? parameter : 1 / parameter;
+            const ft = lambda * Math.exp(-lambda * time);
+            const Ft = 1 - Math.exp(-lambda * time);
+            const Rt = Math.exp(-lambda * time);
+            const mttf = 1 / lambda;
+            if (isLambdaForm) {
+                document.getElementById('mttf1').textContent = mttf.toFixed(8);
+                document.getElementById('ft1').textContent = ft.toFixed(8);
+                document.getElementById('Ft1').textContent = Ft.toFixed(8);
+                document.getElementById('Rt1').textContent = Rt.toFixed(8);
+            } else {
+                document.getElementById('lambda2').textContent = lambda.toFixed(8);
+                document.getElementById('ft2').textContent = ft.toFixed(8);
+                document.getElementById('Ft2').textContent = Ft.toFixed(8);
+                document.getElementById('Rt2').textContent = Rt.toFixed(8);
+            }
+        }
+    </script>
+</body>
+</html>

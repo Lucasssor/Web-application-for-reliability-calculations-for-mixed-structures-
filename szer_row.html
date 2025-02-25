@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Struktura Szeregowo-Równoległa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <header>
+            <img src="img/agh.jpg" width="25%">
+            <h1><b>Struktura Szeregowo-Równoległa</b></h1>
+        </header>
+        
+        <nav class="navigation-bar">
+            <a href="index.html">Strona główna</a>
+            <a href="szer_row.html">Struktura Szeregowo-Równoległa</a>
+            <a href="row_szer.html">Struktura Równoległo-Szeregowa</a>
+            <a href="weibull.html">Rozkład Weibulla</a>
+            <a href="wykladniczy.html">Rozkład Wykładniczy</a>
+        </nav>
+
+        <main class="container">
+            <div class="text-center mb-4">
+                <p>Systemem o strukturze szeregowo-równoległej nazywa się system, który składa się z połączeń równoległych i szeregowych elementów. Taka struktura pozwala na zwiększenie niezawodności systemu poprzez redundancję i zapewnienie, że uszkodzenie pojedynczych elementów niekoniecznie prowadzi do awarii całego systemu.</p>
+                <p>Niezawodność tego typu systemu zależy od połączenia niezawodności układów szeregowych i równoległych. Dla każdego segmentu równoległego można obliczyć jego niezawodność, a następnie traktować go jako pojedynczy obiekt w analizie szeregowej.</p>
+                <p><b>Schemat blokowy systemu szeregowo-równoległego:</b></p>
+                
+                <img src="img/szerrow.png" width='50%' class="img-fluid mb-3">
+                <p>W celu obliczenia wskaźników należy obliczyć niezawodność wszytskich <i>m</i> zespołów z <i>n</i> równolegle połączonymi elementami<br>Do obliczeń należy zastosować następujące wzory: </p>
+                
+                <img src="img/szerrow_wzor.png" width="25%"><br><br>
+                <p style="font-size:12px;">gdzie: <br>R<sub>ij</sub>(t) - nieuszkadzalność i-tego elementu znajdującego się w j-tym zespole <br>R(t) - nieuszkadzalność systemu<br>F(t) - uszkadzalność systemu</p>
+                <hr>
+                <p>W celu obliczenia niezawodności należy uzupełnić poniższe formularze wartością "m", a następnie wartościami "n" zgodnie z schematem blokowym systemu szeregowo-równoległego znajdującym się wyżej.</p>
+                <p>Po wygenerowaniu struktury należy wprowadzić dane wejściowe w przedziale od 0 do 1 w odpowiednie bloki i kliknąć "Oblicz".</p>
+            </div>
+            <div id="formContainer">
+                <div class="centered-form" id="initialFormContainer">
+                    <form id="initialForm">
+                        <div class="form-group mb-3">
+                            <label for="mValue" class="form-label">Podaj wartość "m" (1-5):</label>
+                            <input type="number" id="mValue" name="mValue" class="form-control" min="1" max="5" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Zatwierdź</button>
+                    </form>
+                </div>
+                <div id="dynamicContent"></div>
+                <div id="resultContainer"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let m = 0;
+        let nValues = [];
+        let blockValues = {};
+
+        document.getElementById('initialForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            m = parseInt(document.getElementById('mValue').value);
+            document.getElementById('initialFormContainer').style.display = 'none';
+            generateForm(event);
+        });
+
+        function generateForm(event) {
+            event.preventDefault();
+            const dynamicContent = document.getElementById('dynamicContent');
+            const resultContainer = document.getElementById('resultContainer');
+            dynamicContent.innerHTML = '';
+            resultContainer.innerHTML = '';
+            
+            if (m >= 1 && m <= 5) {
+                let formHTML = `
+                    <h2 class="mb-3 text-center">Podana wartość m to: ${m}</h2>
+                    <form id="valuesForm" class="centered-form">`;
+
+                for (let i = 1; i <= m; i++) {
+                    formHTML += `
+                        <div class="form-group mb-3">
+                            <label for="n${i}" class="form-label">Podaj wartość n<sub>${i}</sub> (1-5):</label>
+                            <input type="number" id="n${i}" name="n${i}" class="form-control" required min="1" max="5">
+                        </div> `;
+                }
+
+                formHTML += `
+                    <button type="submit" class="btn btn-success w-100">Zatwierdź</button>
+                    </form>`;
+
+                dynamicContent.innerHTML = formHTML;
+                document.getElementById('valuesForm').addEventListener('submit', handleValuesSubmit);
+            } else {
+                dynamicContent.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        Wartość m musi być pomiędzy 1 a 5.
+                    </div>`;
+            }
+        }
+
+        function handleValuesSubmit(event) {
+            event.preventDefault();
+            nValues = [];
+            blockValues = {};
+
+            for (let i = 1; i <= m; i++) {
+                const value = parseInt(document.getElementById(`n${i}`).value);
+                
+                if (isNaN(value) || value < 1 || value > 5) {
+                    alert(`Wartość n${i} musi być liczbą od 1 do 5`);
+                    return;
+                }
+                nValues.push(value);
+            }
+            
+            const dynamicContent = document.getElementById('dynamicContent');
+            dynamicContent.innerHTML = `
+                <div class="structure-container2" >
+                    ${generateStructure(nValues)}
+                </div>
+                <div class="mt-3 d-flex justify-content-center gap-2">
+                    <button class="btn btn-success me-2" onclick="querryDataAndShowResults()">Oblicz</button>
+                </div>`;
+        }
+
+        function generateStructure(nValues) {
+            const positions = {
+                1: [{ top: '50%' }],
+                2: [{ top: '30%' }, { top: '70%' }],
+                3: [{ top: '30%' }, { top: '50%' }, { top: '70%' }],
+                4: [{ top: '10%' }, { top: '30%' }, { top: '70%' }, { top: '90%' }],
+                5: [{ top: '10%' }, { top: '30%' }, { top: '50%' }, { top: '70%' }, { top: '90%' }]
+            };
+
+            let structureHTML = `<div class="d-flex justify-content-center align-items-start">`;
+
+            nValues.forEach((n, rowIndex) => {
+                structureHTML += 
+                    `<div class="img-container2" style="position: relative; display: inline-block;">
+                        <img src="img/szerrow_linie/k${n}.png" class="structure-image" style="max-width: 200px;">`;
+
+                for (let colIndex = 0; colIndex < n; colIndex++) {
+                    const inputValue = blockValues[`block_${rowIndex}_${colIndex}`] || '';
+                    structureHTML += 
+                        `<input type="number" 
+                            min="0" max="1" step="0.01" class="block-input2" 
+                            style="position: absolute; left: 50%; transform: translate(-50%, -50%); top: ${positions[n][colIndex].top};"
+                            id="block_${rowIndex}_${colIndex}"
+                            value="${inputValue}">`;
+                }
+                structureHTML += `</div>`;
+            });
+            structureHTML += `</div>`;
+            return structureHTML;
+        }
+
+        function querryDataAndShowResults() {
+            const matrix = querryDataToMatrix();
+            if (!matrix) return;
+            showResults(matrix);
+        }
+
+        function querryDataToMatrix() {
+            let isValid = true;
+            for (let input of document.querySelectorAll('.block-input2')) {
+                const value = parseFloat(input.value);
+                if (isNaN(value) || value < 0 || value > 1) {
+                    isValid = false;
+                    break; 
+                }
+            }
+            if (!isValid) {
+                alert('Wszystkie wartości muszą być między 0 a 1');
+                return;
+            }
+
+            let matrix = Array(5).fill().map(() => Array(5).fill(0));
+            const inputs = document.querySelectorAll('.block-input2');
+
+            for (let i = 0; i < inputs.length; i++) {
+                const input = inputs[i];
+                const [_, row, col] = input.id.split('_');
+                matrix[parseInt(row)][parseInt(col)] = parseFloat(input.value) || 0;
+            }
+            return matrix;
+        }
+        
+        function calculateReliability(matrix) {
+            let systemReliability = 1;
+            
+            for (let i = 0; i < m; i++) {
+                let columnReliability = 1;
+                for (let j = 0; j < 5; j++) {
+                    columnReliability *= 1 - matrix[i][j];
+                }
+                systemReliability *= 1 - columnReliability;
+            }
+            return systemReliability;
+        }
+
+        function showResults(matrix) {
+
+            const reliability = calculateReliability(matrix);
+            const failureProbability = 1 - reliability;
+
+            const resultContainer=document.getElementById('resultContainer');
+            resultContainer.innerHTML=`
+                <div class="value">
+                    Nieuszkadzalność systemu R(t)= ${reliability.toFixed(8)}<br>
+                    Uszkadzalność systemu F(t)= ${failureProbability.toFixed(8)}</div>`;
+        }
+    </script>
+</body>
+</html>

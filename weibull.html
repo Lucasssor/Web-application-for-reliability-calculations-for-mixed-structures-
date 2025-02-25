@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rozkład Weibulla</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <header>
+            <img src="img/agh.jpg" width="25%">
+            <h1><b>Rozkład Weibulla</b></h1>
+        </header>
+       
+        <nav class="navigation-bar">
+            <a href="index.html">Strona główna</a>
+            <a href="szer_row.html">Struktura Szeregowo-Równoległa</a>
+            <a href="row_szer.html">Struktura Równoległo-Szeregowa</a>
+            <a href="weibull.html">Rozkład Weibulla</a>
+            <a href="wykladniczy.html">Rozkład Wykładniczy</a>
+        </nav>
+
+        <div class="text-center mb-4">
+            <p>
+                Rozkład Weibulla to ciągły rozkład statystyczny wykorzystywany w analizach niezawodności, który modeluje zmienność intensywności uszkodzeń w czasie. Jest definiowany przez dwa kluczowe parametry:
+              </p>
+              <p>
+                <strong>Parametr skali (η)</strong>: <br>Określa czas, w którym 63,21% obiektów ulega awarii, wpływając na średni czas życia badanych obiektów. Wyższa wartość oznacza dłuższy czas życia.<br><br>
+                <strong>Parametr kształtu (β)</strong>: <br>Określa, jak intensywność uszkodzeń zmienia się w czasie:<br>
+                Dla β < 1, intensywność maleje (wadliwa produkcja).<br>
+                Dla β = 1, jest stała (rozkład wykładniczy).<br>
+                Dla β > 1, intensywność wzrasta (starzenie się materiału).<br><br>
+                Rozkład Weibulla jest elastyczny i może modelować różne typy awarii, w tym zmęczenie materiałowe.
+              </p>
+              
+            <img src="img/weibull_wzor.jpg" width="20%"><br><br>
+            <p style="font-size:12px;">gdzie: <br>F(t) - uszkadzalność systemu,<br>R(t) - nieuszkadzalność systemu,<br>f(t) - gęstość prawdopodobieństwa,<br>λ(t) - intensywność uszkodzeń, <br>β - parametr kształtu,<br> η - parametr skali</p>
+        <hr>
+            <p>W celu obliczenia wybranych charakterystyk: λ(t), f(t), F(t), R(t) należy wprowadzić dane wejściowe. Dane muszą być nieujemne.</p>
+        </div>
+
+
+        <div class="form-container">
+            <div class="mb-4">
+                <div class="mb-3">
+                    <label for="value1" class="form-label">Czas [t], (t.u.):</label>
+                    <input type="number" class="form-control" id="time" step="0.0001" min="0" required>
+                </div>
+                <div class="mb-3">
+                    <label for="value2" class="form-label">Parametr kształtu [β]:</label>
+                    <input type="number" class="form-control" id="beta" step="0.0001" min="0"required>
+                </div>
+                <div class="mb-3">
+                    <label for="value3" class="form-label">Parametr skali [η]:</label>
+                    <input type="number" class="form-control" id="eta" step="0.0001" min="0" required>
+                </div>
+                <button type="button" class="btn btn-primary w-100" onclick="calculateResult()">Zatwierdź</button>
+            </div>
+            <div class="result-container">               
+                <strong>Wyniki: </strong><br>
+                λ: <span id="lambda">-</span><br>
+                f(t): <span id="ft">-</span><br>
+                F(t): <span id="Ft">-</span><br>
+                R(t): <span id="Rt">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function calculateResult() {
+            let time = document.getElementById('time').value;
+            let beta = document.getElementById('beta').value;
+            let eta = document.getElementById('eta').value;
+
+            if (time === '' || beta === '' || eta === '') {
+                alert('Proszę wypełnić wszystkie pola!');
+                return;
+            }
+            if (time < 0 || beta < 0|| eta < 0) {
+                alert('Liczby muszą być nieujemne!');
+                return;
+            }
+
+            let Rt = Math.exp(-Math.pow(time/eta, beta));
+            let Ft = 1 - Rt;
+            let ft = beta/eta * Math.pow(time/eta, beta-1) * Rt;
+            let lambda = ft/Rt;
+
+            document.getElementById('lambda').textContent = lambda.toFixed(8);
+            document.getElementById('ft').textContent = ft.toFixed(8);
+            document.getElementById('Ft').textContent = Ft.toFixed(8);
+            document.getElementById('Rt').textContent = Rt.toFixed(8);
+        }
+
+    </script>
+</body>
+</html>
