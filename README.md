@@ -7,10 +7,8 @@ Additionally, the repository includes an Excel file with VBA code that allows us
 JavaScript, VBA, HTML, CSS, Bootstrap
 
 
-/*
  * Copyright (C) - All Rights Reserved
  *
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * Written by Łukasz Kiecka, 25.02.2025
- */
